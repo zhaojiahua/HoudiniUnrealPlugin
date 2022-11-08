@@ -224,6 +224,34 @@ USTRUCT(BlueprintType)
 struct FHoudiniAtrributeInfo
 {
     GENERATED_USTRUCT_BODY();
-
     HAPI_AttributeInfo houAttributeInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FVertexList
+{
+    GENERATED_USTRUCT_BODY();
+    UPROPERTY(BlueprintReadOnly, EditDefaultsOnly, category = "zjhAddAttrs | common")
+        TArray<int> vertexList;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniNodeInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_NodeInfo houNodeInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniTranform
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_Transform houTransform;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniTranformEuler
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_TransformEuler houTransformEuler;
 };

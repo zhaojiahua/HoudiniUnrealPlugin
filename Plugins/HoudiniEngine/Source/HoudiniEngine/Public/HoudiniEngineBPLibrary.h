@@ -108,6 +108,27 @@ public:
 //Get array attribute string data.
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Attributes")
 		static bool HoudiniGetAttriStringArrayData(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, FString inAtrrName, FHoudiniAtrributeInfo outAttrInfo, TArray<FString>& outDataArray);
+//Get array containing the vertex-point associations where the ith element in the array is the point index the ith vertex associates with. 
+	UFUNCTION(BlueprintCallable,BlueprintPure, category = "zjhHoudiniUnrealPlugin | Attributes")
+		static bool HoudiniGetVertexList(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, TArray<int>& outVertexList, int count);
+//Get a particular part info struct. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Attributes")
+		static bool HoudiniGetPartInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, FHoudiniPartInfo& outPartInfo);
+//Get Geo from part info struct
+	UFUNCTION(BlueprintCallable,BlueprintPure, category = "zjhHoudiniUnrealPlugin | Attributes")
+		static void HoudiniGetGeoFromPartInfo(const FHoudiniPartInfo& intPartInfo, int& faceCount, int& pointCount);
+//Fill an HAPI_NodeInfo struct.
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Nodes")
+		static bool HoudiniGetNodeInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniNodeInfo& outNodeInfo);
+// Get HAPI_NodeInfo struct Sub data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Nodes")
+		static void HoudiniGetNodeInfoSubData(const FHoudiniNodeInfo& outNodeInfo, int& outParentId, int& outUniqueHoudiniNodeId, bool& isValid);
+//Set the transform of an individual houdini object
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
+		static bool HoudiniSetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, const FTransform & inTransform);
+//Get the transform of an individual houdini object
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
+		static bool HoudiniGetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, int relativeNodeId, FTransform& outTransform);
 
 
 private:

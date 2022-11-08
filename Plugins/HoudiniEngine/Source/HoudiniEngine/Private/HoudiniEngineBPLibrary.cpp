@@ -1,7 +1,7 @@
-// Copyright Epic Games, Inc. All Rights Reserved.
 
 #include "HoudiniEngineBPLibrary.h"
 #include "HoudiniEngine.h"
+#include "HoudiniEngineUtilityLibrary.h"
 
 UHoudiniEngineBPLibrary::UHoudiniEngineBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
@@ -319,6 +319,68 @@ bool UHoudiniEngineBPLibrary::HoudiniGetAttriStringArrayData(FHoudiniSession inh
 		}
 	}
 	return true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetVertexList(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, TArray<int>& outVertexList, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	outVertexList.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetVertexList(&houSession, (HAPI_NodeId)inNodeId, (HAPI_PartId)inPartId, outVertexList.GetData(), 0, count);
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetPartInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, FHoudiniPartInfo& outPartInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetPartInfo(&houSession, (HAPI_NodeId)inNodeId, (HAPI_PartId)inPartId, &outPartInfo.houPartInfo);
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+void UHoudiniEngineBPLibrary::HoudiniGetGeoFromPartInfo(const FHoudiniPartInfo& intPartInfo, int& faceCount, int& pointCount)
+{
+	faceCount = intPartInfo.houPartInfo.faceCount;
+	pointCount = intPartInfo.houPartInfo.pointCount;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetNodeInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniNodeInfo& outNodeInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_NodeInfo  tempNodeInfo;
+	HAPI_Result tempResult = HAPI_GetNodeInfo(&houSession, (HAPI_NodeId)inNodeId, &tempNodeInfo);
+	outNodeInfo.houNodeInfo = tempNodeInfo;
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+void UHoudiniEngineBPLibrary::HoudiniGetNodeInfoSubData(const FHoudiniNodeInfo& outNodeInfo, int& outParentId, int& outUniqueHoudiniNodeId, bool& isValid)
+{
+	isValid = outNodeInfo.houNodeInfo.isValid;
+	outParentId=outNodeInfo.houNodeInfo.parentId;
+	outUniqueHoudiniNodeId = outNodeInfo.houNodeInfo.uniqueHoudiniNodeId;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, const FTransform& inTransform)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_TransformEuler& houTransformEuler =UHoudiniEngineUtilityLibrary::UnrealTransformToHoudiniTransformEuler(inTransform).houTransformEuler;
+	HAPI_Result tempResult = HAPI_SetObjectTransform(&houSession, (HAPI_NodeId)inNodeId, &houTransformEuler);
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, int relativeNodeId, FTransform& outTransform)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Transform tempHouTransform;
+	HAPI_Transform_Init(&tempHouTransform);
+	HAPI_Result tempResult = HAPI_GetObjectTransform(&houSession, (HAPI_NodeId)inNodeId, (HAPI_NodeId)relativeNodeId, HAPI_SRT, &tempHouTransform);
+	FHoudiniTranform tempOutHoudiniTransform;
+	tempOutHoudiniTransform.houTransform = tempHouTransform;
+	outTransform = UHoudiniEngineUtilityLibrary::HoudiniTransformToUnrealTransform(tempOutHoudiniTransform);
+	return tempResult == HAPI_RESULT_SUCCESS;
 }
 
 FString UHoudiniEngineBPLibrary::ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle)
