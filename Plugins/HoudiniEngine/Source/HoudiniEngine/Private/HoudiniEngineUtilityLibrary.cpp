@@ -142,7 +142,7 @@ bool UHoudiniEngineUtilityLibrary::ReverseVertexList(UPARAM(ref) TArray<int>& in
 	//{
 	//	Swap(inVertexList[i * 3 + 1], inVertexList[i * 3 + 2]);
 	//}
-	ParallelFor(inVertexList.Num() / 3, [&inVertexList](int i) {Swap(inVertexList[i * 3 + 1], inVertexList[i * 3 + 2]); });
+	ParallelFor(inVertexList.Num() / 3, [&inVertexList](int i) {Swap(inVertexList[i * 3], inVertexList[i * 3 + 1]); });
 	return true;
 }
 

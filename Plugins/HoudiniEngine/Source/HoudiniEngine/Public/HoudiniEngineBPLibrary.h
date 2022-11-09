@@ -129,7 +129,25 @@ public:
 //Get the transform of an individual houdini object
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
 		static bool HoudiniGetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, int relativeNodeId, FTransform& outTransform);
-
+//Compose a list of child object nodes given a parent node id. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
+		static bool HoudiniComposeObjectList(FHoudiniSession inhoudiniSession, int inNodeId, int& outObjCount);
+//Fill an array of HAPI_ObjectInfo structs. 	This is best used with HAPI_ComposeObjectList() with.
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
+		static bool HoudiniGetComposedObjectList(FHoudiniSession inhoudiniSession, int inNodeId, TArray< FHoudiniObjectInfo>& outObjInfos, int count);
+//Get the object info on an OBJ node. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Objects")
+		static bool HoudiniGetObjectInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniObjectInfo& outObjInfo);
+//Get the display geo (SOP) node inside an Object node. If there there are multiple display SOP nodes, only the first one is returned. If the node is a display SOP itself, even if a network, it will return its own geo info. If the node is a SOP but not a network and not the display SOP, this function will fail. 
+//The above implies that you can safely call this function on both OBJand SOP asset nodesand get the same(equivalent) geometry display node back.SOP asset nodes will simply return themselves.
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Objects")
+		static bool HoudiniGetDisplayGeoInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniGeoInfo& outGeoInfo);
+//Get ObjectInfo Sub data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Objects")
+		static void HoudiniGetObjInfoSubData(const FHoudiniObjectInfo& inObjInfo, int& outNodeId, bool& bIsVisible);
+//Get GeoInfo Sub data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Objects")
+		static void HoudiniGetGeoInfoSubData(const FHoudiniGeoInfo& inGeoInfo, int& outSopNodeId, bool& isTemplated, bool& isDisplayGeo, int& outPartCount);
 
 private:
 	static FString ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle);

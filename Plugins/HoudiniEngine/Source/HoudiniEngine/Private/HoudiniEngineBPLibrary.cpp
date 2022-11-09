@@ -383,6 +383,59 @@ bool UHoudiniEngineBPLibrary::HoudiniGetObjectTransform(FHoudiniSession inhoudin
 	return tempResult == HAPI_RESULT_SUCCESS;
 }
 
+bool UHoudiniEngineBPLibrary::HoudiniComposeObjectList(FHoudiniSession inhoudiniSession, int inNodeId, int& outObjCount)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_ComposeObjectList(&houSession, (HAPI_NodeId)inNodeId, nullptr, &outObjCount);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetComposedObjectList(FHoudiniSession inhoudiniSession, int inNodeId, TArray<FHoudiniObjectInfo>& outObjInfos, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	TArray<HAPI_ObjectInfo> houObjInfos;
+	outObjInfos.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetComposedObjectList(&houSession, (HAPI_NodeId)inNodeId, houObjInfos.GetData(), 0, count);
+	if (tempResult != HAPI_RESULT_SUCCESS)return false;
+	for (int i = 0; i < houObjInfos.Num(); i++)
+	{
+		outObjInfos[i].houObjectInfo = houObjInfos[i];
+	}
+	return  true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetObjectInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniObjectInfo& outObjInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetObjectInfo(&houSession, (HAPI_NodeId)inNodeId, &outObjInfo.houObjectInfo);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetDisplayGeoInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniGeoInfo& outGeoInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetDisplayGeoInfo(&houSession, (HAPI_NodeId)inNodeId, &outGeoInfo.houGeoInfo);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+void UHoudiniEngineBPLibrary::HoudiniGetObjInfoSubData(const FHoudiniObjectInfo& inObjInfo, int& outNodeId, bool& bIsVisible)
+{
+	outNodeId = inObjInfo.houObjectInfo.nodeId;
+	bIsVisible = inObjInfo.houObjectInfo.isVisible;
+}
+
+void UHoudiniEngineBPLibrary::HoudiniGetGeoInfoSubData(const FHoudiniGeoInfo& inGeoInfo, int& outSopNodeId, bool& isTemplated, bool& isDisplayGeo, int& outPartCount)
+{
+	outSopNodeId = inGeoInfo.houGeoInfo.nodeId;
+	isTemplated = inGeoInfo.houGeoInfo.isTemplated;
+	isDisplayGeo = inGeoInfo.houGeoInfo.isDisplayGeo;
+	outPartCount = inGeoInfo.houGeoInfo.partCount;
+}
+
 FString UHoudiniEngineBPLibrary::ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle)
 {
 	if (!HoudiniSessionIsValid(inhoudiniSession)) return FString("");

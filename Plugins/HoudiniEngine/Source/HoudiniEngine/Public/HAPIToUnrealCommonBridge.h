@@ -255,3 +255,17 @@ struct FHoudiniTranformEuler
     GENERATED_USTRUCT_BODY();
     HAPI_TransformEuler houTransformEuler;
 };
+
+USTRUCT(BlueprintType)
+struct FHoudiniObjectInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_ObjectInfo  houObjectInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniGeoInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_GeoInfo   houGeoInfo;
+};
