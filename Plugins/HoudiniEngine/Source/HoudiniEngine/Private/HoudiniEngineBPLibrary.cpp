@@ -3,6 +3,8 @@
 #include "HoudiniEngine.h"
 #include "HoudiniEngineUtilityLibrary.h"
 
+FHoudiniSession UHoudiniEngineBPLibrary::globalHSession;
+
 UHoudiniEngineBPLibrary::UHoudiniEngineBPLibrary(const FObjectInitializer& ObjectInitializer)
 : Super(ObjectInitializer)
 {
@@ -14,21 +16,63 @@ float UHoudiniEngineBPLibrary::HoudiniEngineSampleFunction(float Param)
 	return -1;
 }
 
-FHoudiniSession UHoudiniEngineBPLibrary::StartServerAndCreateSession(FHoudiniSession inSession)
+FHoudiniSession& UHoudiniEngineBPLibrary::GetGlobalHoudiniSession()
 {
-	HAPI_Session  houdiniSession = inSession.ToHAPI_Session();
+	return globalHSession;
+}
+
+bool UHoudiniEngineBPLibrary::GetValidGlobalHoudiniSession(FHoudiniSession& outHoudiniSession)
+{
+	if (HoudiniSessionIsValid(globalHSession))
+	{
+		outHoudiniSession = globalHSession;
+		return true;
+	}
+	if (StartServerAndCreateSession())
+	{
+		outHoudiniSession = globalHSession;
+		return true;
+	}
+	return false;
+}
+
+bool UHoudiniEngineBPLibrary::StartServerAndCreateSession()
+{
+	HAPI_Session  houdiniSession = globalHSession.ToHAPI_Session();
 	HAPI_Result createResult = HAPI_CreateThriftNamedPipeSession(&houdiniSession, "hapi");
 	if (createResult != HAPI_Result::HAPI_RESULT_SUCCESS)
 	{
 		HAPI_ThriftServerOptions serverOptions{ 0 };
+		FMemory::Memzero<HAPI_ThriftServerOptions>(serverOptions);
 		serverOptions.autoClose = true;
 		serverOptions.timeoutMs = 3000.0f;
-		HAPI_StartThriftNamedPipeServer(&serverOptions, "hapi", nullptr);
-		UE_LOG(LogTemp, Warning, TEXT("Houdini named pipe server has been successfully started!"));
-		HAPI_CreateThriftNamedPipeSession(&houdiniSession, "hapi");
+		HAPI_Result tempResult = HAPI_StartThriftNamedPipeServer(&serverOptions, "hapi", nullptr);
+		if (tempResult == HAPI_Result::HAPI_RESULT_SUCCESS)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Houdini named pipe server has been successfully started!"));
+			UHoudiniEngineUtilityLibrary::HoudiniNotification(TEXT("Houdini named pipe server has been successfully started!"));
+		}
+		else
+		{
+			UHoudiniEngineUtilityLibrary::HoudiniNotification(TEXT("Houdini named pipe server started failed! "));
+		}
+		tempResult = HAPI_CreateThriftNamedPipeSession(&houdiniSession, "hapi");
+		if (tempResult == HAPI_Result::HAPI_RESULT_SUCCESS)
+		{
+			//UE_LOG(LogTemp, Warning, TEXT("Houdini named pipe server has been successfully created!"));
+			UHoudiniEngineUtilityLibrary::HoudiniNotification(TEXT("Houdini named pipe server has been successfully created!"));
+			globalHSession = FHoudiniSession::FromHAPI_Session(houdiniSession);
+			return true;
+		}
+		else
+		{
+			UHoudiniEngineUtilityLibrary::HoudiniNotification(TEXT("Houdini named pipe server created failed"));
+			return false;
+		}
 	}
-	UE_LOG(LogTemp, Warning, TEXT("Houdini named pipe server has been successfully created!"));
-	return FHoudiniSession::FromHAPI_Session(houdiniSession);
+	UHoudiniEngineUtilityLibrary::HoudiniNotification(TEXT("Houdini named pipe server has been successfully created!"));
+	globalHSession = FHoudiniSession::FromHAPI_Session(houdiniSession);
+	return true;
 }
 
 FHoudiniCookOption UHoudiniEngineBPLibrary::CreateHoudiniCookOption()
@@ -78,6 +122,24 @@ bool UHoudiniEngineBPLibrary::GetAvailableAssetOptionName(FHoudiniSession inhoud
 	fullOptionName.ParseIntoArray(outStringArray, TEXT("/"), true);
 	label = outStringArray[outStringArray.Num() - 1];
 	return false;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetAssetInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniAssetInfo& outAssetInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetAssetInfo(&houSession, (HAPI_NodeId)inNodeId, &outAssetInfo.houAssetInfo);
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::GetAssetInfoSubData(FHoudiniSession inhoudiniSession,const FHoudiniAssetInfo& outAssetInfo, bool& bHasCooked, FString& outNodeName, FString& outNodeLabel, FString& outFullOpName)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	bHasCooked = (bool)outAssetInfo.houAssetInfo.hasEverCooked;
+	outNodeName = ToString(inhoudiniSession, outAssetInfo.houAssetInfo.nameSH);
+	outNodeLabel = ToString(inhoudiniSession, outAssetInfo.houAssetInfo.labelSH);
+	outFullOpName = ToString(inhoudiniSession, outAssetInfo.houAssetInfo.fullOpNameSH);
+	return true;
 }
 
 bool UHoudiniEngineBPLibrary::HoudiniCreateNode(FHoudiniSession inhoudiniSession, FString optionName, FString label, int& nodeId, int parentNodeId, bool bcookOnCreation)
@@ -178,6 +240,19 @@ bool UHoudiniEngineBPLibrary::HoudiniDeleteNode(FHoudiniSession inhoudiniSession
 	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
 	HAPI_Result tempResult = HAPI_DeleteNode(&houSession, (HAPI_NodeId)nodeId);
 	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniIsNodeValid(FHoudiniSession inhoudiniSession, int nodeId)
+{
+	if (nodeId < 0) return false;
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_NodeInfo tempNodeInfo;
+	HAPI_Result tempResult = HAPI_GetNodeInfo(&houSession, (HAPI_NodeId)nodeId, &tempNodeInfo);
+	if (tempResult != HAPI_RESULT_SUCCESS) return false;
+	bool tempAnswer;
+	HAPI_IsNodeValid(&houSession, (HAPI_NodeId)nodeId, tempNodeInfo.uniqueHoudiniNodeId, &(HAPI_Bool)tempAnswer);
+	return tempAnswer;
 }
 
 bool UHoudiniEngineBPLibrary::HoudiniCreateInputNode(FHoudiniSession inhoudiniSession, int& nodeId, FString nameLabel)
@@ -396,6 +471,7 @@ bool UHoudiniEngineBPLibrary::HoudiniGetComposedObjectList(FHoudiniSession inhou
 	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
 	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
 	TArray<HAPI_ObjectInfo> houObjInfos;
+	houObjInfos.SetNumUninitialized(count);
 	outObjInfos.SetNumUninitialized(count);
 	HAPI_Result tempResult = HAPI_GetComposedObjectList(&houSession, (HAPI_NodeId)inNodeId, houObjInfos.GetData(), 0, count);
 	if (tempResult != HAPI_RESULT_SUCCESS)return false;
@@ -424,7 +500,7 @@ bool UHoudiniEngineBPLibrary::HoudiniGetDisplayGeoInfo(FHoudiniSession inhoudini
 
 void UHoudiniEngineBPLibrary::HoudiniGetObjInfoSubData(const FHoudiniObjectInfo& inObjInfo, int& outNodeId, bool& bIsVisible)
 {
-	outNodeId = inObjInfo.houObjectInfo.nodeId;
+	outNodeId = (int)inObjInfo.houObjectInfo.nodeId;
 	bIsVisible = inObjInfo.houObjectInfo.isVisible;
 }
 
@@ -434,6 +510,39 @@ void UHoudiniEngineBPLibrary::HoudiniGetGeoInfoSubData(const FHoudiniGeoInfo& in
 	isTemplated = inGeoInfo.houGeoInfo.isTemplated;
 	isDisplayGeo = inGeoInfo.houGeoInfo.isDisplayGeo;
 	outPartCount = inGeoInfo.houGeoInfo.partCount;
+}
+
+FHoudiniCurveInfo UHoudiniEngineBPLibrary::HoudiniCreateCurveInfo(int crvCount, int pointCount, EHoudini_CurveType crvType, bool bHasKnots, int knotCount, int knotOrder, bool bIsPeriodic)
+{
+	HAPI_CurveInfo tempCurveInfo = HAPI_CurveInfo_Create();
+	tempCurveInfo.curveCount = crvCount;
+	tempCurveInfo.vertexCount = pointCount;
+	FEnumParser<HAPI_CurveType> CrvTypeParser;
+	tempCurveInfo.curveType = CrvTypeParser.ParsarEnum(HoudiniEnumToString(crvType));
+	tempCurveInfo.hasKnots = bHasKnots;
+	tempCurveInfo.knotCount = knotCount;
+	tempCurveInfo.order = knotOrder;
+	tempCurveInfo.isPeriodic = bIsPeriodic;
+	FHoudiniCurveInfo tempHoudiniCurveInfo;
+	tempHoudiniCurveInfo.houCurvetInfo = tempCurveInfo;
+	return tempHoudiniCurveInfo;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetCurveInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, const FHoudiniCurveInfo& inCrvInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetCurveInfo(&houSession, (HAPI_NodeId)inNodeId, (HAPI_PartId)inPartId, &inCrvInfo.houCurvetInfo);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetCurveCounts(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, const TArray<int>& curveCountsArray)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	if (curveCountsArray.Num() <= 0) { return false; }
+	HAPI_Result tempResult = HAPI_SetCurveCounts(&houSession, (HAPI_NodeId)inNodeId, (HAPI_PartId)inPartId, curveCountsArray.GetData(), 0, curveCountsArray.Num());
+	return  tempResult == HAPI_RESULT_SUCCESS;
 }
 
 FString UHoudiniEngineBPLibrary::ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle)

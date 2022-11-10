@@ -86,6 +86,16 @@ enum class EHoudini_StorageType : uint8
     Houdini_STORAGETYPE_MAX
 };
 
+UENUM(BlueprintType)
+enum class EHoudini_CurveType : uint8
+{
+    Houdini_CURVETYPE_INVALID,
+    Houdini_CURVETYPE_LINEAR,
+    Houdini_CURVETYPE_NURBS,
+    Houdini_CURVETYPE_BEZIER,
+    Houdini_CURVETYPE_MAX
+};
+
 template<typename T>
 class FEnumParser
 {
@@ -164,6 +174,15 @@ FEnumParser<HAPI_StorageType>::FEnumParser()
     EnumMap.Emplace("Houdini_STORAGETYPE_FLOAT64", HAPI_STORAGETYPE_FLOAT64);
     EnumMap.Emplace("Houdini_STORAGETYPE_STRING", HAPI_STORAGETYPE_STRING);
     EnumMap.Emplace("Houdini_STORAGETYPE_MAX", HAPI_STORAGETYPE_MAX);
+}
+
+FEnumParser<HAPI_CurveType>::FEnumParser()
+{
+    EnumMap.Emplace("Houdini_CURVETYPE_INVALID", HAPI_CURVETYPE_INVALID);
+    EnumMap.Emplace("Houdini_CURVETYPE_LINEAR", HAPI_CURVETYPE_LINEAR);
+    EnumMap.Emplace("Houdini_CURVETYPE_NURBS", HAPI_CURVETYPE_NURBS);
+    EnumMap.Emplace("Houdini_CURVETYPE_BEZIER", HAPI_CURVETYPE_BEZIER);
+    EnumMap.Emplace("Houdini_CURVETYPE_MAX", HAPI_CURVETYPE_MAX);
 }
 
 ///////////////////////////////////////////////Struct////////////////////////////////////////////
@@ -268,4 +287,18 @@ struct FHoudiniGeoInfo
 {
     GENERATED_USTRUCT_BODY();
     HAPI_GeoInfo   houGeoInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniAssetInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_AssetInfo   houAssetInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniCurveInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_CurveInfo   houCurvetInfo;
 };

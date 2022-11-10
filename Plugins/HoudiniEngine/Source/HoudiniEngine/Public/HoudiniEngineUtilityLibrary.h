@@ -29,6 +29,10 @@ public:
 		static bool FloatListToProMeshTangentList(TArray<FProcMeshTangent>& outTangent, const TArray<float>& inFloatArray, bool bSwitchYZAxis = true, bool bFlipTangentY = false);
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
 		static bool FloatListToFVector2DList(TArray<FVector2D>& outVector, const TArray<float>& inFloatArray, bool bFlipY = true);
+//Houdini quaternion to float list
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
+		static bool RotatorToFloatList(const TArray<FRotator>& rotList, TArray<float>& outFloatArray, bool bNegativeW = true);
+	
 	UFUNCTION(BlueprintCallable, category = "zjhAddFuns | Unreal | Utility")
 		static bool ReverseVertexList(UPARAM(ref) TArray<int>& inVertexList);
 // 分割顶点列表
@@ -48,5 +52,12 @@ public:
 //Houdini TransformEuler To Unreal Transform
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
 		static FTransform HoudiniTransformEulerToUnrealTransform(FHoudiniSession inhoudiniSession, const FHoudiniTranformEuler& inHouTransformEuler);
+
+
+/// //////////////////Notification
+// note message
+	UFUNCTION(BlueprintCallable, category = "zjhAddFuns | Unreal | Notification")
+		static void HoudiniNotification(FString inMessageStr, float duringTime = 2.0f, bool bUseLargeFont = true);
+
 
 };

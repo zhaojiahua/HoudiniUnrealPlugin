@@ -16,8 +16,12 @@ class UHoudiniEngineBPLibrary : public UBlueprintFunctionLibrary
 	static float HoudiniEngineSampleFunction(float Param);
 
 public:
-	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Creates a Thrift RPC session using a Windows named pipe or a Unix domain socket as transport. "), category = "zjhHoudiniUnrealPlugin | Sessions")
-		static FHoudiniSession StartServerAndCreateSession(FHoudiniSession inSession);
+		static FHoudiniSession& GetGlobalHoudiniSession();
+// get global houdini session
+	UFUNCTION(BlueprintCallable,BlueprintPure, category = "zjhHoudiniUnrealPlugin | Sessions")
+		static bool GetValidGlobalHoudiniSession(FHoudiniSession& outHoudiniSession);
+	//UFUNCTION(BlueprintCallable, meta = (ToolTip = "Creates a Thrift RPC session using a Windows named pipe or a Unix domain socket as transport. "), category = "zjhHoudiniUnrealPlugin | Sessions")
+		static bool StartServerAndCreateSession();
 	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Creates options which affect how nodes are cooked. "), category = "zjhHoudiniUnrealPlugin")
 		static FHoudiniCookOption CreateHoudiniCookOption();
 //		Create the asset manager, set up environment variables, and initialize the main Houdini scene. No license check is done during this step. Only when you try to load an asset library (OTL) do we actually check for licenses. 
@@ -32,6 +36,11 @@ public:
 //		Get the names of the assets contained in an asset library. 
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Assets")
 		static bool GetAvailableAssetOptionName(FHoudiniSession inhoudiniSession, int inlibrary_id, FString& fullOptionName, FString& label);
+//Fill an asset_info struct from a node. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Assets")
+		static bool HoudiniGetAssetInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniAssetInfo& outAssetInfo);
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Assets")
+		static bool GetAssetInfoSubData(FHoudiniSession inhoudiniSession,const FHoudiniAssetInfo& outAssetInfo, bool& bHasCooked, FString& outNodeName, FString& outNodeLabel, FString& outFullOpName);
 //		Create a node inside a node network. Nodes created this way will have their HAPI_NodeInfo::createdPostAssetLoad set to true. 
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Nodes")
 		static bool HoudiniCreateNode(FHoudiniSession inhoudiniSession, FString optionName, FString label, int& nodeId, int parentNodeId/*= -1*/, bool bcookOnCreation/*=false*/);
@@ -68,6 +77,9 @@ public:
 //Delete a node from a node network. Only nodes with their HAPI_NodeInfo::createdPostAssetLoad set to true can be deleted this way. 
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Nodes")
 		static bool HoudiniDeleteNode(FHoudiniSession inhoudiniSession, int nodeId);
+//Determine if your instance of the node actually still exists inside the Houdini scene. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Nodes")
+		static bool HoudiniIsNodeValid(FHoudiniSession inhoudiniSession, int nodeId);
 
 //		Creates a simple geometry SOP node that can accept geometry input. This will create a dummy OBJ node with a Null SOP inside that you can set the geometry of using the geometry SET APIs.
 //		You can then connect this node to any other node as a geometry input. 
@@ -127,7 +139,7 @@ public:
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
 		static bool HoudiniSetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, const FTransform & inTransform);
 //Get the transform of an individual houdini object
-	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Objects")
 		static bool HoudiniGetObjectTransform(FHoudiniSession inhoudiniSession, int inNodeId, int relativeNodeId, FTransform& outTransform);
 //Compose a list of child object nodes given a parent node id. 
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Objects")
@@ -148,8 +160,19 @@ public:
 //Get GeoInfo Sub data
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Objects")
 		static void HoudiniGetGeoInfoSubData(const FHoudiniGeoInfo& inGeoInfo, int& outSopNodeId, bool& isTemplated, bool& isDisplayGeo, int& outPartCount);
+//Create a curve info struct.
+	UFUNCTION(BlueprintCallable, BlueprintPure,meta = (AdvancedDisplay = "crvType,bHasKnots,knotCount,knotOrder,bIsPeriodic"), category = "zjhHoudiniUnrealPlugin | Helper")
+		static FHoudiniCurveInfo HoudiniCreateCurveInfo(int crvCount, int pointCount, EHoudini_CurveType crvType = EHoudini_CurveType::Houdini_CURVETYPE_LINEAR, bool bHasKnots = false, int knotCount = 0, int knotOrder = 0, bool bIsPeriodic = false);
+//Set meta-data for the curve mesh, including the curve type, order, and periodicity. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Curves")
+		static bool HoudiniSetCurveInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, const FHoudiniCurveInfo& inCrvInfo);
+//return  tempResult == HAPI_RESULT_SUCCESS;
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Curves")
+		static bool HoudiniSetCurveCounts(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, const TArray<int>& curveCountsArray);
+
 
 private:
+	static FHoudiniSession globalHSession;
 	static FString ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle);
 	template<typename T>
 	static FString HoudiniEnumToString(const T enumValue);

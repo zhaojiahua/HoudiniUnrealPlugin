@@ -2,6 +2,9 @@
 #include "HoudiniEngineUtilityLibrary.h"
 #include "Kismet/KismetMathLibrary.h"
 #include <HoudiniEngineBPLibrary.h>
+#include "Widgets/Notifications/SNotificationList.h"
+#include "Framework/Notifications/NotificationManager.h"
+
 
 bool UHoudiniEngineUtilityLibrary::GetUnrealMeshData(UStaticMesh* staticMesh, TArray<FVector>& pointList, TArray<int>& vertexList, TArray<int>& faceList, TArray<FVector>& normalList, TArray<FVector>& tangentlList, TArray<FVector2D>& uvList, TArray<int>& sectionList, TArray<UMaterialInterface*>& materialList)
 {
@@ -135,6 +138,21 @@ bool UHoudiniEngineUtilityLibrary::FloatListToFVector2DList(TArray<FVector2D>& o
 	return true;
 }
 
+bool UHoudiniEngineUtilityLibrary::RotatorToFloatList(const TArray<FRotator>& rotList, TArray<float>& outFloatArray, bool bNegativeW)
+{
+	if (rotList.Num() <= 0)	return false;
+	outFloatArray.InsertUninitialized(rotList.Num() * 4);
+	for (int i = 0; i < rotList.Num(); i++)
+	{
+		FQuat tempQuat = rotList[i].Quaternion();
+		outFloatArray[i * 4] = tempQuat.X;
+		outFloatArray[i * 4+1] = tempQuat.Z;
+		outFloatArray[i * 4+2] = tempQuat.Y;
+		outFloatArray[i * 4 + 3] = bNegativeW ? -tempQuat.W : tempQuat.W;
+	}
+	return true;
+}
+
 bool UHoudiniEngineUtilityLibrary::ReverseVertexList(UPARAM(ref) TArray<int>& inVertexList)
 {
 	if (inVertexList.Num() == 0 || inVertexList.Num() % 3 != 0)	return false;
@@ -259,5 +277,15 @@ FTransform UHoudiniEngineUtilityLibrary::HoudiniTransformEulerToUnrealTransform(
 	FHoudiniTranform tempHoudiniTransfrom;
 	tempHoudiniTransfrom.houTransform = houTransformQuat;
 	return HoudiniTransformToUnrealTransform(tempHoudiniTransfrom);	//最后调用上面的函数即可
+}
+
+void UHoudiniEngineUtilityLibrary::HoudiniNotification(FString inMessageStr, float duringTime, bool bUseLargeFont)
+{
+	FNotificationInfo	messageInfo(FText::FromString(inMessageStr));
+	messageInfo.bFireAndForget = true;
+	messageInfo.ExpireDuration = duringTime;
+	messageInfo.bUseLargeFont = bUseLargeFont;
+	messageInfo.bUseSuccessFailIcons = false;
+	FSlateNotificationManager::Get().AddNotification(messageInfo)->SetCompletionState(SNotificationItem::CS_Success);
 }
 
