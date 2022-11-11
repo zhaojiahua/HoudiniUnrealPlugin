@@ -141,7 +141,7 @@ bool UHoudiniEngineUtilityLibrary::FloatListToFVector2DList(TArray<FVector2D>& o
 bool UHoudiniEngineUtilityLibrary::RotatorToFloatList(const TArray<FRotator>& rotList, TArray<float>& outFloatArray, bool bNegativeW)
 {
 	if (rotList.Num() <= 0)	return false;
-	outFloatArray.InsertUninitialized(rotList.Num() * 4);
+	outFloatArray.SetNumUninitialized(rotList.Num() * 4);
 	for (int i = 0; i < rotList.Num(); i++)
 	{
 		FQuat tempQuat = rotList[i].Quaternion();

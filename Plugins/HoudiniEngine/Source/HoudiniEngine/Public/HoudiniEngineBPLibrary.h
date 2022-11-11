@@ -169,6 +169,81 @@ public:
 //return  tempResult == HAPI_RESULT_SUCCESS;
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Curves")
 		static bool HoudiniSetCurveCounts(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, const TArray<int>& curveCountsArray);
+//Set single parm float value by name. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmFloatValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, float param_value);
+//Set single parm int value by name. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmIntValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, int param_value);
+//Set (push) a string value. We can only set a single value at a time because we want to avoid fixed size string buffers. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmStringValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_value, int param_id, int param_index);
+//Set a node id parm value of an Op Path parameter. For example, This is how you connect the geometry output of an asset to the geometry input of another asset - whether the input is a parameter or a node input (the top of the node). Node inputs get converted top parameters in HAPI. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmNodeValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int valueNodeId);
+//Set (push) an expression string. We can only set a single value at a time because we want to avoid fixed size string buffers. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmExpression(FHoudiniSession inhoudiniSession, int inNodeId, FString param_value, int param_id, int param_index);
+//Set (push) an array of parameter float values. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmFloatValues(FHoudiniSession inhoudiniSession, int inNodeId, const TArray<float>& inValues, int start);
+//Set (push) an array of parameter int values. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniSetParmIntValues(FHoudiniSession inhoudiniSession, int inNodeId, const TArray<int>& inValues, int start);
+//Revert single parm by name to default. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniRevertParmToDefault(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index);
+//Revert all instances of the parm by name to defaults. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniRevertParmToDefaults(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name);
+//Get single parm float value by name. 
+	UFUNCTION(BlueprintCallable,BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmFloatValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, float& outparam_value);
+//Get single parm int value by name. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmIntValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, int& outparam_value);
+//Get single parm string value by name. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmStringValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, bool bEvalueate, FString& outStrValue);
+//Get a single node id parm value of an Op Path parameter. This is how you see which node is connected as an input for the current node (via parameter). 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmNodeValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int& outNodeId);
+//Get (push) an array of parameter float values. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmFloatValues(FHoudiniSession inhoudiniSession, int inNodeId, TArray<float>& outValues, int startIndex, int count);
+//Get (push) an array of parameter int values. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmIntValues(FHoudiniSession inhoudiniSession, int inNodeId, TArray<int>& outValues, int startIndex, int count);
+//Fill an array of parameter string handles. These handles must be used in conjunction with HAPI_GetString() to get the actual string values. This is more efficient than calling HAPI_GetParmStringValue() individually for each parameter value. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmStringValues(FHoudiniSession inhoudiniSession, int inNodeId, bool bEvalueate, TArray<FString>& outStrValues, int startIndex, int count);
+//Fill an array of HAPI_ParmInfo structs with parameter information from the asset instance node. 
+	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParameters(FHoudiniSession inhoudiniSession, int inNodeId, TArray<FHoudiniParamInfo>& parmInfoList, int count);
+//Convenience function that checks on the value of the HAPI_ParmInfo::type field to tell you the underlying data type. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniParmInfo_IsInt(const FHoudiniParamInfo& inParmInfo);
+//Convenience function that checks on the value of the HAPI_ParmInfo::type field to tell you the underlying data type. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniParmInfo_IsFloat(const FHoudiniParamInfo& inParmInfo);
+//Convenience function that checks on the value of the HAPI_ParmInfo::type field to tell you the underlying data type. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniParmInfo_IsString(const FHoudiniParamInfo& inParmInfo);
+//Convenience function. If the parameter can be represented by this data type,it returns HAPI_ParmInfo::size, and zero otherwise. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static int HoudiniGetParmInfoTypeValueCount(const FHoudiniParamInfo& inParmInfo, EHoudini_ParamValueType invalueType);
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static int HoudiniGetParmInfoValueIndex(const FHoudiniParamInfo& inParmInfo, EHoudini_ParamValueIndexType invalueIndexType);
+//		Get the parm info of a parameter by name. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmInfoFromName(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, FHoudiniParamInfo& outParamInfo);
+//		Get the parm id of a parameter by name. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmIdFromName(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int& outParamId);
+//Get the parm info of a parameter by parm id. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inParmId, FHoudiniParamInfo& outParamInfo);
+
 
 
 private:

@@ -545,6 +545,265 @@ bool UHoudiniEngineBPLibrary::HoudiniSetCurveCounts(FHoudiniSession inhoudiniSes
 	return  tempResult == HAPI_RESULT_SUCCESS;
 }
 
+bool UHoudiniEngineBPLibrary::HoudiniSetParmFloatValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, float param_value)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmFloatValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), param_index, param_value);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetParmIntValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, int param_value)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmIntValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), param_index, param_value);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetParmStringValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_value, int param_id, int param_index)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmStringValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_value), (HAPI_ParmId)param_id, param_index);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetParmNodeValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int valueNodeId)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmNodeValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), (HAPI_NodeId)valueNodeId);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetParmExpression(FHoudiniSession inhoudiniSession, int inNodeId, FString param_value, int param_id, int param_index)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmExpression(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_value), (HAPI_ParmId)param_id, param_index);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetParmFloatValues(FHoudiniSession inhoudiniSession, int inNodeId, const TArray<float>& inValues, int start)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmFloatValues(&houSession, (HAPI_NodeId)inNodeId, inValues.GetData(), start, inValues.Num());
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniSetParmIntValues(FHoudiniSession inhoudiniSession, int inNodeId, const TArray<int>& inValues, int start)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_SetParmIntValues(&houSession, (HAPI_NodeId)inNodeId, inValues.GetData(), start, inValues.Num());
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniRevertParmToDefault(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_RevertParmToDefault(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), param_index);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniRevertParmToDefaults(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_RevertParmToDefaults(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name));
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmFloatValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, float& outparam_value)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetParmFloatValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), param_index, &outparam_value);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmIntValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, int& outparam_value)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetParmIntValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), param_index, &outparam_value);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmStringValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int param_index, bool bEvalueate, FString& outStrValue)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_StringHandle tempSH = -1;
+	HAPI_Result tempResult = HAPI_GetParmStringValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), param_index, bEvalueate, &tempSH);
+	if (tempSH < 0 || tempResult != HAPI_RESULT_SUCCESS) return false;
+	outStrValue = ToString(inhoudiniSession, tempSH);
+	return  true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmNodeValue(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int& outNodeId)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_NodeId tempNodeId = -1;
+	HAPI_Result tempResult = HAPI_GetParmNodeValue(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), &tempNodeId);
+	if (tempNodeId < 0 || tempResult != HAPI_RESULT_SUCCESS) return false;
+	outNodeId = (int)tempNodeId;
+	return  true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmFloatValues(FHoudiniSession inhoudiniSession, int inNodeId, TArray<float>& outValues, int startIndex, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	outValues.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetParmFloatValues(&houSession, (HAPI_NodeId)inNodeId, outValues.GetData(), startIndex, count);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmIntValues(FHoudiniSession inhoudiniSession, int inNodeId, TArray<int>& outValues, int startIndex, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	outValues.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetParmIntValues(&houSession, (HAPI_NodeId)inNodeId, outValues.GetData(), startIndex, count);
+	return  tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmStringValues(FHoudiniSession inhoudiniSession, int inNodeId, bool bEvalueate, TArray<FString>& outStrValues,int startIndex, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	TArray<HAPI_StringHandle> strHandles;
+	strHandles.SetNumUninitialized(count);
+	outStrValues.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetParmStringValues(&houSession, (HAPI_NodeId)inNodeId, bEvalueate, strHandles.GetData(), startIndex, count);
+	if (tempResult != HAPI_RESULT_SUCCESS)return false;
+	TMap<HAPI_StringHandle, FString> handleToStringMap;
+	for (int i = 0; i < count; i++)
+	{
+		if (i > 0 && strHandles[i] == strHandles[i - 1])
+		{
+			strHandles[i] = strHandles[i - 1];
+		}
+		const FString* tempFindStr = handleToStringMap.Find(strHandles[i]);
+		if (tempFindStr)
+		{
+			outStrValues[i] = *tempFindStr;
+		}
+		else
+		{
+			outStrValues[i] = ToString(inhoudiniSession, strHandles[i]);
+			handleToStringMap.Add(strHandles[i], outStrValues[i]);
+		}
+	}
+	return true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParameters(FHoudiniSession inhoudiniSession, int inNodeId, TArray<FHoudiniParamInfo>& parmInfoList, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession) || count <= 0) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	TArray< HAPI_ParmInfo > houParmInfos;
+	houParmInfos.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetParameters(&houSession, (HAPI_NodeId)inNodeId, houParmInfos.GetData(), 0, count);
+	if (tempResult != HAPI_RESULT_SUCCESS) return false;
+	for (int i = 0; i < count; i++)
+	{
+		FHoudiniParamInfo tempParmInfo;
+		tempParmInfo.houParmInfo = houParmInfos[i];
+		parmInfoList.Add(tempParmInfo);
+	}
+	return true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniParmInfo_IsInt(const FHoudiniParamInfo& inParmInfo)
+{
+	return HAPI_ParmInfo_IsInt(&inParmInfo.houParmInfo);
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniParmInfo_IsFloat(const FHoudiniParamInfo& inParmInfo)
+{
+	return HAPI_ParmInfo_IsFloat(&inParmInfo.houParmInfo);
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniParmInfo_IsString(const FHoudiniParamInfo& inParmInfo)
+{
+	return HAPI_ParmInfo_IsString(&inParmInfo.houParmInfo);
+}
+
+int UHoudiniEngineBPLibrary::HoudiniGetParmInfoTypeValueCount(const FHoudiniParamInfo& inParmInfo, EHoudini_ParamValueType invalueType)
+{
+	int tempCount = 0;
+	switch (invalueType)
+	{
+	case EHoudini_ParamValueType::Houdini_ParamValue_float:
+		tempCount = HAPI_ParmInfo_GetFloatValueCount(&inParmInfo.houParmInfo);
+		break;
+	case EHoudini_ParamValueType::Houdini_ParamValue_int:
+		tempCount = HAPI_ParmInfo_GetIntValueCount(&inParmInfo.houParmInfo);
+		break;
+	case EHoudini_ParamValueType::Houdini_ParamValue_string:
+		tempCount = HAPI_ParmInfo_GetStringValueCount(&inParmInfo.houParmInfo);
+		break;
+	default:
+		break;
+	}
+	return tempCount;
+}
+
+int UHoudiniEngineBPLibrary::HoudiniGetParmInfoValueIndex(const FHoudiniParamInfo& inParmInfo, EHoudini_ParamValueIndexType invalueIndexType)
+{
+	int tempindex = -1;
+	switch (invalueIndexType)
+	{
+	case EHoudini_ParamValueIndexType::Houdini_ParamValueIndex_float:
+		tempindex = inParmInfo.houParmInfo.floatValuesIndex;
+		break;
+	case EHoudini_ParamValueIndexType::Houdini_ParamValueIndex_int:
+		tempindex = inParmInfo.houParmInfo.intValuesIndex;
+		break;
+	case EHoudini_ParamValueIndexType::Houdini_ParamValueIndex_string:
+		tempindex = inParmInfo.houParmInfo.stringValuesIndex;
+		break;
+	case EHoudini_ParamValueIndexType::Houdini_ParamValueIndex_choice:
+		tempindex = inParmInfo.houParmInfo.choiceIndex;
+		break;
+	default:
+		break;
+	}
+	return tempindex;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmInfoFromName(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, FHoudiniParamInfo& outParamInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetParmInfoFromName(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), &outParamInfo.houParmInfo);
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmIdFromName(FHoudiniSession inhoudiniSession, int inNodeId, FString param_name, int& outParamId)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_ParmId tempParmId;
+	HAPI_Result tempResult = HAPI_GetParmIdFromName(&houSession, (HAPI_NodeId)inNodeId, TCHAR_TO_UTF8(*param_name), &tempParmId);
+	outParamId = (int)tempParmId;
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetParmInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inParmId, FHoudiniParamInfo& outParamInfo)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	HAPI_Result tempResult = HAPI_GetParmInfo(&houSession, (HAPI_NodeId)inNodeId, (HAPI_ParmId)inParmId, &outParamInfo.houParmInfo);
+	return tempResult == HAPI_RESULT_SUCCESS;
+}
+
 FString UHoudiniEngineBPLibrary::ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle)
 {
 	if (!HoudiniSessionIsValid(inhoudiniSession)) return FString("");

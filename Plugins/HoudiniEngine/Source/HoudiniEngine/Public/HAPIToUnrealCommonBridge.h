@@ -3,6 +3,7 @@
 #include "HAPI/HAPI.h"
 #include "HAPIToUnrealCommonBridge.generated.h"
 
+/// ////////////////////////////////////////////////////////////////////////////////////////////// ENUM
 UENUM(BlueprintType)
 enum class EHoudini_SessionType : uint8
 {
@@ -95,6 +96,26 @@ enum class EHoudini_CurveType : uint8
     Houdini_CURVETYPE_BEZIER,
     Houdini_CURVETYPE_MAX
 };
+
+UENUM(BlueprintType)
+enum class EHoudini_ParamValueType : uint8
+{
+    Houdini_ParamValue_float UMETA(DisplayName = "float"),
+    Houdini_ParamValue_int UMETA(DisplayName = "int"),
+    Houdini_ParamValue_string UMETA(DisplayName = "string")
+};
+
+UENUM(BlueprintType)
+enum class EHoudini_ParamValueIndexType : uint8
+{
+    Houdini_ParamValueIndex_float UMETA(DisplayName = "float"),
+    Houdini_ParamValueIndex_int UMETA(DisplayName = "int"),
+    Houdini_ParamValueIndex_string UMETA(DisplayName = "string"),
+    Houdini_ParamValueIndex_choice UMETA(DisplayName = "choice")
+};
+
+/// //////////////////////////////////////////////////////////////////////////////////////////////
+
 
 template<typename T>
 class FEnumParser
@@ -301,4 +322,11 @@ struct FHoudiniCurveInfo
 {
     GENERATED_USTRUCT_BODY();
     HAPI_CurveInfo   houCurvetInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniParamInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_ParmInfo   houParmInfo;
 };
