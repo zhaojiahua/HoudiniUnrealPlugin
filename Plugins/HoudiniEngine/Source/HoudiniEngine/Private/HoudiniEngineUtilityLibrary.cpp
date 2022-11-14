@@ -4,6 +4,7 @@
 #include <HoudiniEngineBPLibrary.h>
 #include "Widgets/Notifications/SNotificationList.h"
 #include "Framework/Notifications/NotificationManager.h"
+#include "Curves/CurveLinearColor.h"
 
 
 bool UHoudiniEngineUtilityLibrary::GetUnrealMeshData(UStaticMesh* staticMesh, TArray<FVector>& pointList, TArray<int>& vertexList, TArray<int>& faceList, TArray<FVector>& normalList, TArray<FVector>& tangentlList, TArray<FVector2D>& uvList, TArray<int>& sectionList, TArray<UMaterialInterface*>& materialList)
@@ -277,6 +278,45 @@ FTransform UHoudiniEngineUtilityLibrary::HoudiniTransformEulerToUnrealTransform(
 	FHoudiniTranform tempHoudiniTransfrom;
 	tempHoudiniTransfrom.houTransform = houTransformQuat;
 	return HoudiniTransformToUnrealTransform(tempHoudiniTransfrom);	//最后调用上面的函数即可
+}
+
+bool UHoudiniEngineUtilityLibrary::GetFloatCurveKeyframesData(UCurveFloat* incurveFloat, TArray<float>& times, TArray<float>& values, TArray<TEnumAsByte<ERichCurveInterpMode>>& curveModes)
+{
+	if (!incurveFloat || incurveFloat->IsPendingKill())	return false;
+	FRichCurve& crvDatas = incurveFloat->FloatCurve;
+	int keynum = crvDatas.GetNumKeys();
+	if (!keynum) return false;
+	for (int i = 0; i < keynum; i++)
+	{
+		float tempTime = crvDatas.Keys[i].Time;
+		float tempValue = crvDatas.Keys[i].Value;
+		auto mode = crvDatas.Keys[i].InterpMode;
+		times.Add(tempTime);
+		values.Add(tempValue);
+		curveModes.Add(mode);
+	}
+	return true;
+}
+
+bool UHoudiniEngineUtilityLibrary::GetColorCurveKeyframesData(UCurveLinearColor* incurveLinearColor, TArray<float>& times, TArray<FLinearColor>& colors, TArray<TEnumAsByte<ERichCurveInterpMode>>& curveModes)
+{
+	if (!incurveLinearColor || incurveLinearColor->IsPendingKill())	return false;
+	auto& crvDatas = incurveLinearColor->FloatCurves;
+	int keynum = crvDatas[0].GetNumKeys();	//这里注意rgb和Alpha通道是分开的,它们的帧数可能不一样
+	if (!keynum) return false;
+	for (int i = 0; i < keynum; i++)
+	{
+		float tempTime = crvDatas[0].Keys[i].Time;
+		float tempValue_R = crvDatas[0].Keys[i].Value;
+		float tempValue_G = crvDatas[1].Keys[i].Value;
+		float tempValue_B = crvDatas[2].Keys[i].Value;
+		FLinearColor tempLinearColor(tempValue_R, tempValue_G, tempValue_B);
+		auto mode = crvDatas[0].Keys[i].InterpMode;
+		times.Emplace(tempTime);
+		colors.Emplace(tempLinearColor);
+		curveModes.Emplace(mode);
+	}
+	return true;
 }
 
 void UHoudiniEngineUtilityLibrary::HoudiniNotification(FString inMessageStr, float duringTime, bool bUseLargeFont)

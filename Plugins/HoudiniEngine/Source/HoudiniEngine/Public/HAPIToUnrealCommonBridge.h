@@ -114,6 +114,15 @@ enum class EHoudini_ParamValueIndexType : uint8
     Houdini_ParamValueIndex_choice UMETA(DisplayName = "choice")
 };
 
+UENUM(BlueprintType)
+enum class EHoudini_RampType : uint8
+{
+    Houdini_RampType_INVALID UMETA(DisplayName = "invalid"),
+    Houdini_RampType_FLOAT UMETA(DisplayName = "float"),
+    Houdini_RampType_COLOR UMETA(DisplayName = "color"),
+    Houdini_RampType_MAX UMETA(DisplayName = "max")
+};
+
 /// //////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -128,6 +137,12 @@ public:
         T* valuePtr = EnumMap.Find(value);
         check(valuePtr);
         return *valuePtr;
+    }
+    FString FindKey(const T value)
+    {
+        const FString* str = EnumMap.FindKey(value);
+        check(str);
+        return *str;
     }
 };
 
@@ -204,6 +219,14 @@ FEnumParser<HAPI_CurveType>::FEnumParser()
     EnumMap.Emplace("Houdini_CURVETYPE_NURBS", HAPI_CURVETYPE_NURBS);
     EnumMap.Emplace("Houdini_CURVETYPE_BEZIER", HAPI_CURVETYPE_BEZIER);
     EnumMap.Emplace("Houdini_CURVETYPE_MAX", HAPI_CURVETYPE_MAX);
+}
+
+FEnumParser<HAPI_RampType>::FEnumParser()
+{
+    EnumMap.Emplace("Houdini_RampType_INVALID", HAPI_RAMPTYPE_INVALID);
+    EnumMap.Emplace("Houdini_RampType_FLOAT", HAPI_RAMPTYPE_FLOAT);
+    EnumMap.Emplace("Houdini_RampType_COLOR", HAPI_RAMPTYPE_COLOR);
+    EnumMap.Emplace("Houdini_RampType_MAX", HAPI_RAMPTYPE_MAX);
 }
 
 ///////////////////////////////////////////////Struct////////////////////////////////////////////
@@ -329,4 +352,27 @@ struct FHoudiniParamInfo
 {
     GENERATED_USTRUCT_BODY();
     HAPI_ParmInfo   houParmInfo;
+};
+
+USTRUCT(BlueprintType)
+struct FHIntVector4D
+{
+    GENERATED_USTRUCT_BODY();
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "Houdini Variables")
+        int32 X;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "Houdini Variables")
+        int32 Y;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "Houdini Variables")
+        int32 Z;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "Houdini Variables")
+        int32 W;
+    FHIntVector4D() :X(0),Y(0),Z(0),W(0) {}
+    FHIntVector4D(int32 inx,int32 iny,int32 inz,int32 inw):X(inx),Y(iny),Z(inz),W(inw){}
+};
+
+USTRUCT(BlueprintType)
+struct FHoudiniParmChoiceInfo
+{
+    GENERATED_USTRUCT_BODY();
+    HAPI_ParmChoiceInfo    houParmChoiceInfo;
 };

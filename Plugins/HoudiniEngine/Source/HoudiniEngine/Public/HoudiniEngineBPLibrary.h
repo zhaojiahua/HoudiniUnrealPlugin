@@ -243,6 +243,21 @@ public:
 //Get the parm info of a parameter by parm id. 
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
 		static bool HoudiniGetParmInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inParmId, FHoudiniParamInfo& outParamInfo);
+//Get ChoiceCount
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static int HoudiniGetChoiceCount(const FHoudiniParamInfo& inParmInfo);
+//Fill an array of HAPI_ParmChoiceInfo structs with parameter choice list information from the asset instance node. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmChoiceLists(FHoudiniSession inhoudiniSession, int inNodeId, TArray<FHoudiniParmChoiceInfo>& outParmChoiceInfos, int start, int count);
+//Get ParmChoiceInfo sub data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniGetParmChoiceInfoSubData(FHoudiniSession inhoudiniSession, const TArray<FHoudiniParmChoiceInfo>& inChoiceInfo, TArray<FString>& outValues, TArray<FString>& outLabels);
+//Parameter has no underlying No data type. Examples of this are UI items such as folder lists and separators. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static bool HoudiniParmInfoIsNonValue(const FHoudiniParamInfo& inParmInfo);
+//Get multiParm sub data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
+		static void HoudiniGetMultiParmSubData(const FHoudiniParamInfo& inParmInfo, int& outinstanceNum, int& outinstanceCount, int& outinstanceLength, int& outinstanceStartOffset, EHoudini_RampType& outRampType);
 
 
 
@@ -251,6 +266,8 @@ private:
 	static FString ToString(FHoudiniSession inhoudiniSession, HAPI_StringHandle inAssethandle);
 	template<typename T>
 	static FString HoudiniEnumToString(const T enumValue);
+	template<typename EnumType>
+	static EnumType HoudiniStringToEnum(const FString& instr);
 };
 
 template<typename T>
@@ -259,4 +276,10 @@ inline FString UHoudiniEngineBPLibrary::HoudiniEnumToString(const T enumValue)
 	FString name = StaticEnum<T>()->GetNameStringByValue(static_cast<__underlying_type(T)>(enumValue));
 	check(name.Len() != 0);
 	return name;
+}
+
+template<typename EnumType>
+inline EnumType UHoudiniEngineBPLibrary::HoudiniStringToEnum(const FString& instr)
+{
+	return static_cast<EnumType>(StaticEnum<EnumType>()->GetValueByName(FName(*instr)));
 }

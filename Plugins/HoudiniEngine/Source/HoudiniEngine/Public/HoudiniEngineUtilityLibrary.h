@@ -52,9 +52,17 @@ public:
 //Houdini TransformEuler To Unreal Transform
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
 		static FTransform HoudiniTransformEulerToUnrealTransform(FHoudiniSession inhoudiniSession, const FHoudiniTranformEuler& inHouTransformEuler);
+//Get UE curve float data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
+		static bool GetFloatCurveKeyframesData(UCurveFloat* incurveFloat, TArray<float>& times, TArray<float>& values, TArray<TEnumAsByte<ERichCurveInterpMode>>& curveModes);
+//Get UE curve color data
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
+		static bool GetColorCurveKeyframesData(UCurveLinearColor* incurveLinearColor, TArray<float>& times, TArray<FLinearColor>& colors, TArray<TEnumAsByte<ERichCurveInterpMode>>& curveModes);
 
-
-/// //////////////////Notification
+	
+	
+	
+	/// //////////////////Notification
 // note message
 	UFUNCTION(BlueprintCallable, category = "zjhAddFuns | Unreal | Notification")
 		static void HoudiniNotification(FString inMessageStr, float duringTime = 2.0f, bool bUseLargeFont = true);
