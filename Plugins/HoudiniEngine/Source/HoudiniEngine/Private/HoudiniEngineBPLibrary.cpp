@@ -75,9 +75,11 @@ bool UHoudiniEngineBPLibrary::StartServerAndCreateSession()
 	return true;
 }
 
-FHoudiniCookOption UHoudiniEngineBPLibrary::CreateHoudiniCookOption()
+FHoudiniCookOption UHoudiniEngineBPLibrary::CreateHoudiniCookOption(EHoudini_PackedPrimInstancingMode instancingMode)
 {
 	HAPI_CookOptions cookOptions = HAPI_CookOptions_Create();
+	FEnumParser<HAPI_PackedPrimInstancingMode> InstancingModeParse;
+	cookOptions.packedPrimInstancingMode = InstancingModeParse.ParsarEnum(HoudiniEnumToString(instancingMode));
 	FHoudiniCookOption tempHoudiniCookOption;
 	tempHoudiniCookOption.houdiniCooOption = cookOptions;
 	return tempHoudiniCookOption;
@@ -862,6 +864,38 @@ void UHoudiniEngineBPLibrary::HoudiniGetMultiParmSubData(const FHoudiniParamInfo
 	outinstanceStartOffset = inParmInfo.houParmInfo.instanceStartOffset;
 	FEnumParser<HAPI_RampType> rampTypeParse;
 	outRampType = HoudiniStringToEnum<EHoudini_RampType>(rampTypeParse.FindKey(inParmInfo.houParmInfo.rampType));
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetInstancedPartIds(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, TArray<int>& outPartIdList, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession) || count <=0) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	TArray<HAPI_PartId> houPartIds;
+	houPartIds.SetNumUninitialized(count);
+	HAPI_Result tempResult = HAPI_GetInstancedPartIds(&houSession, (HAPI_NodeId)inNodeId, (HAPI_PartId)inPartId, houPartIds.GetData(), 0, count);
+	if (tempResult != HAPI_RESULT_SUCCESS) return false;
+	for (auto item : houPartIds)
+	{
+		outPartIdList.Add((int)item);
+	}
+	return true;
+}
+
+bool UHoudiniEngineBPLibrary::HoudiniGetInstancerPartTransforms(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, TArray<FTransform>& outTransforms, int count)
+{
+	if (!HoudiniSessionIsValid(inhoudiniSession) || count <= 0) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	TArray<HAPI_Transform> temphouTransforms;
+	HAPI_Result tempResult = HAPI_GetInstancerPartTransforms(&houSession, (HAPI_NodeId)inNodeId, (HAPI_PartId)inPartId, HAPI_SRT, temphouTransforms.GetData(), 0, count);
+	if (tempResult != HAPI_RESULT_SUCCESS) return false;
+	for (auto& item : temphouTransforms)
+	{
+		FHoudiniTranform tempHoudiniTransform;
+		tempHoudiniTransform.houTransform = item;
+		FTransform ueTransform = UHoudiniEngineUtilityLibrary::HoudiniTransformToUnrealTransform(tempHoudiniTransform);
+		outTransforms.Add(ueTransform);
+	}
+	return true;
 }
 
 

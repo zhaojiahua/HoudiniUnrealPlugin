@@ -22,8 +22,8 @@ public:
 		static bool GetValidGlobalHoudiniSession(FHoudiniSession& outHoudiniSession);
 	//UFUNCTION(BlueprintCallable, meta = (ToolTip = "Creates a Thrift RPC session using a Windows named pipe or a Unix domain socket as transport. "), category = "zjhHoudiniUnrealPlugin | Sessions")
 		static bool StartServerAndCreateSession();
-	UFUNCTION(BlueprintCallable, meta = (ToolTip = "Creates options which affect how nodes are cooked. "), category = "zjhHoudiniUnrealPlugin")
-		static FHoudiniCookOption CreateHoudiniCookOption();
+		UFUNCTION(BlueprintCallable, meta = (ToolTip = "Creates options which affect how nodes are cooked. "), category = "zjhHoudiniUnrealPlugin")
+			static FHoudiniCookOption CreateHoudiniCookOption(EHoudini_PackedPrimInstancingMode instancingMode = EHoudini_PackedPrimInstancingMode::Houdini_PACKEDPRIM_INSTANCING_MODE_FLAT);
 //		Create the asset manager, set up environment variables, and initialize the main Houdini scene. No license check is done during this step. Only when you try to load an asset library (OTL) do we actually check for licenses. 
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Sessions")
 		static void HoudiniInitializeSession(FHoudiniSession inhoudiniSession, const FHoudiniCookOption& inhoudiniCookOption);
@@ -258,7 +258,12 @@ public:
 //Get multiParm sub data
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Param")
 		static void HoudiniGetMultiParmSubData(const FHoudiniParamInfo& inParmInfo, int& outinstanceNum, int& outinstanceCount, int& outinstanceLength, int& outinstanceStartOffset, EHoudini_RampType& outRampType);
-
+//Get the part ids that this instancer part is instancing. 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Getters")
+		static bool HoudiniGetInstancedPartIds(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, TArray<int>& outPartIdList, int count);
+//Get the instancer part's list of transforms on which to instance the instanced parts you got from HoudiniGetInstancedPartIds(). 
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Getters")
+		static bool HoudiniGetInstancerPartTransforms(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, TArray<FTransform>& outTransforms, int count);
 
 
 private:

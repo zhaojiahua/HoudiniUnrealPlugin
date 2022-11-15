@@ -123,6 +123,16 @@ enum class EHoudini_RampType : uint8
     Houdini_RampType_MAX UMETA(DisplayName = "max")
 };
 
+UENUM(BlueprintType)
+enum class EHoudini_PackedPrimInstancingMode : uint8
+{
+    Houdini_PACKEDPRIM_INSTANCING_MODE_INVALID UMETA(DisplayName = "INVALID"),
+    Houdini_PACKEDPRIM_INSTANCING_MODE_DISABLED UMETA(DisplayName = "DISABLED"),
+    Houdini_PACKEDPRIM_INSTANCING_MODE_HIERARCHY UMETA(DisplayName = "HIERARCHY"),
+    Houdini_PACKEDPRIM_INSTANCING_MODE_FLAT UMETA(DisplayName = "FLAT"),
+    Houdini_PACKEDPRIM_INSTANCING_MODE_MAX UMETA(DisplayName = "MAX")
+};
+
 /// //////////////////////////////////////////////////////////////////////////////////////////////
 
 
@@ -227,6 +237,15 @@ FEnumParser<HAPI_RampType>::FEnumParser()
     EnumMap.Emplace("Houdini_RampType_FLOAT", HAPI_RAMPTYPE_FLOAT);
     EnumMap.Emplace("Houdini_RampType_COLOR", HAPI_RAMPTYPE_COLOR);
     EnumMap.Emplace("Houdini_RampType_MAX", HAPI_RAMPTYPE_MAX);
+}
+
+FEnumParser<HAPI_PackedPrimInstancingMode>::FEnumParser()
+{
+    EnumMap.Emplace("Houdini_PACKEDPRIM_INSTANCING_MODE_INVALID", HAPI_PACKEDPRIM_INSTANCING_MODE_INVALID);
+    EnumMap.Emplace("Houdini_PACKEDPRIM_INSTANCING_MODE_DISABLED", HAPI_PACKEDPRIM_INSTANCING_MODE_DISABLED);
+    EnumMap.Emplace("Houdini_PACKEDPRIM_INSTANCING_MODE_HIERARCHY", HAPI_PACKEDPRIM_INSTANCING_MODE_HIERARCHY);
+    EnumMap.Emplace("Houdini_PACKEDPRIM_INSTANCING_MODE_FLAT", HAPI_PACKEDPRIM_INSTANCING_MODE_FLAT);
+    EnumMap.Emplace("Houdini_PACKEDPRIM_INSTANCING_MODE_MAX", HAPI_PACKEDPRIM_INSTANCING_MODE_MAX);
 }
 
 ///////////////////////////////////////////////Struct////////////////////////////////////////////
