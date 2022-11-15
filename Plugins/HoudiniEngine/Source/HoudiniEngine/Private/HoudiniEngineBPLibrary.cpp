@@ -413,10 +413,18 @@ bool UHoudiniEngineBPLibrary::HoudiniGetPartInfo(FHoudiniSession inhoudiniSessio
 	return tempResult == HAPI_RESULT_SUCCESS;
 }
 
-void UHoudiniEngineBPLibrary::HoudiniGetGeoFromPartInfo(const FHoudiniPartInfo& intPartInfo, int& faceCount, int& pointCount)
+bool UHoudiniEngineBPLibrary::HoudiniGetPartInfoSubData(FHoudiniSession inhoudiniSession, const FHoudiniPartInfo& intPartInfo, int& faceCount, int& pointCount, EHoudini_PartType& partType, FString& partName, bool& bInstanced, int& instanceCount)
 {
+	if (!HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
 	faceCount = intPartInfo.houPartInfo.faceCount;
 	pointCount = intPartInfo.houPartInfo.pointCount;
+	FEnumParser<HAPI_PartType> PartTypeParser;
+	partType = HoudiniStringToEnum<EHoudini_PartType>(PartTypeParser.FindKey(intPartInfo.houPartInfo.type));
+	partName = ToString(inhoudiniSession, intPartInfo.houPartInfo.nameSH);
+	bInstanced = intPartInfo.houPartInfo.isInstanced;
+	instanceCount = intPartInfo.houPartInfo.instanceCount;
+	return true;
 }
 
 bool UHoudiniEngineBPLibrary::HoudiniGetNodeInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniNodeInfo& outNodeInfo)

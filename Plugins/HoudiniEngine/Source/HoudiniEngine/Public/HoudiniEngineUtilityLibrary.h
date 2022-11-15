@@ -58,11 +58,15 @@ public:
 //Get UE curve color data
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
 		static bool GetColorCurveKeyframesData(UCurveLinearColor* incurveLinearColor, TArray<float>& times, TArray<FLinearColor>& colors, TArray<TEnumAsByte<ERichCurveInterpMode>>& curveModes);
-
+//Get Transform from float list
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
+		static bool FloatListToTransformList(FHoudiniSession inhoudiniSession, const TArray<float>& floatList, TArray<FTransform>& outTransformList);
+//Split Transform list by string attributes
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhAddFuns | Unreal | Utility")
+		static bool SplitTransformListByString(const TArray<FTransform>& inTransformList, const TArray<FString>& AttrNames, TArray<FUnrealSplitedTransforms>& outSplitedTransforms);
 	
 	
-	
-	/// //////////////////Notification
+/// //////////////////Notification
 // note message
 	UFUNCTION(BlueprintCallable, category = "zjhAddFuns | Unreal | Notification")
 		static void HoudiniNotification(FString inMessageStr, float duringTime = 2.0f, bool bUseLargeFont = true);

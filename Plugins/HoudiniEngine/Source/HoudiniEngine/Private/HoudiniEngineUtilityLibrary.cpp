@@ -319,6 +319,50 @@ bool UHoudiniEngineUtilityLibrary::GetColorCurveKeyframesData(UCurveLinearColor*
 	return true;
 }
 
+bool UHoudiniEngineUtilityLibrary::FloatListToTransformList(FHoudiniSession inhoudiniSession, const TArray<float>& floatList, TArray<FTransform>& outTransformList)
+{
+	if (!UHoudiniEngineBPLibrary::HoudiniSessionIsValid(inhoudiniSession)) return false;
+	HAPI_Session houSession = inhoudiniSession.ToHAPI_Session();
+	if (floatList.Num() == 0 || floatList.Num() % 16 != 0)return false;
+	for (int i = 0; i < floatList.Num()/16; i++)
+	{
+		float houMatrix[16];
+		for (int j = 0; j < 16; j++)
+		{
+			houMatrix[j] = floatList[i * 16 + j];
+		}
+		HAPI_Transform houTansformQuat;
+		HAPI_Transform_Init(&houTansformQuat);
+		HAPI_ConvertMatrixToQuat(&houSession, houMatrix, HAPI_SRT, &houTansformQuat);
+		FHoudiniTranform temHoudiniTransform;
+		temHoudiniTransform.houTransform = houTansformQuat;
+		FTransform tempTransform = HoudiniTransformToUnrealTransform(temHoudiniTransform);
+		outTransformList.Add(tempTransform);
+	}
+	return true;
+}
+
+bool UHoudiniEngineUtilityLibrary::SplitTransformListByString(const TArray<FTransform>& inTransformList, const TArray<FString>& AttrNames, TArray<FUnrealSplitedTransforms>& outSplitedTransforms)
+{
+	if (inTransformList.Num() == 0 || AttrNames.Num() == 0 || inTransformList.Num() != AttrNames.Num()) return false;
+	TArray<FString> uniqueStrName;
+	for (auto item : AttrNames)
+	{
+		uniqueStrName.AddUnique(item);
+	}
+	outSplitedTransforms.SetNumZeroed(uniqueStrName.Num());
+	for (int i = 0; i < inTransformList.Num(); i++)
+	{
+		int index = uniqueStrName.Find(AttrNames[i]);
+		outSplitedTransforms[index].transformList.Add(inTransformList[i]);
+	}
+	for (int j = 0; j < uniqueStrName.Num(); j++)
+	{
+		outSplitedTransforms[j].partName = uniqueStrName[j];
+	}
+	return true;
+}
+
 void UHoudiniEngineUtilityLibrary::HoudiniNotification(FString inMessageStr, float duringTime, bool bUseLargeFont)
 {
 	FNotificationInfo	messageInfo(FText::FromString(inMessageStr));

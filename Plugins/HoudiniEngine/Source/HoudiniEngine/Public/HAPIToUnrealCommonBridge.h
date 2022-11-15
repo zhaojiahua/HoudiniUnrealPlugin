@@ -376,3 +376,14 @@ struct FHoudiniParmChoiceInfo
     GENERATED_USTRUCT_BODY();
     HAPI_ParmChoiceInfo    houParmChoiceInfo;
 };
+
+USTRUCT(BlueprintType)
+struct FUnrealSplitedTransforms
+{
+    GENERATED_USTRUCT_BODY();
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "Houdini Variables")
+        TArray<FTransform> transformList;
+    UPROPERTY(BlueprintReadWrite, EditAnywhere, category = "Houdini Variables")
+        FString partName;
+};
+

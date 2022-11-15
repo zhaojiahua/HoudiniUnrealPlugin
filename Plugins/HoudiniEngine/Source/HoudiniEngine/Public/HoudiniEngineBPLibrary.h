@@ -127,8 +127,8 @@ public:
 	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Attributes")
 		static bool HoudiniGetPartInfo(FHoudiniSession inhoudiniSession, int inNodeId, int inPartId, FHoudiniPartInfo& outPartInfo);
 //Get Geo from part info struct
-	UFUNCTION(BlueprintCallable,BlueprintPure, category = "zjhHoudiniUnrealPlugin | Attributes")
-		static void HoudiniGetGeoFromPartInfo(const FHoudiniPartInfo& intPartInfo, int& faceCount, int& pointCount);
+	UFUNCTION(BlueprintCallable, BlueprintPure, category = "zjhHoudiniUnrealPlugin | Attributes")
+		static bool HoudiniGetPartInfoSubData(FHoudiniSession inhoudiniSession, const FHoudiniPartInfo& intPartInfo, int& faceCount, int& pointCount, EHoudini_PartType& partType, FString& partName, bool& bInstanced , int& instanceCount);
 //Fill an HAPI_NodeInfo struct.
 	UFUNCTION(BlueprintCallable, category = "zjhHoudiniUnrealPlugin | Nodes")
 		static bool HoudiniGetNodeInfo(FHoudiniSession inhoudiniSession, int inNodeId, FHoudiniNodeInfo& outNodeInfo);
